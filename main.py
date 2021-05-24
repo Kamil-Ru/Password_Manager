@@ -1,3 +1,4 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice, shuffle
@@ -33,21 +34,42 @@ def generate_password():
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save():
     website = website_entry.get()
-    user_name = user_name_entry.get()
+    email = email_entry.get()
     password = password_entry.get()
 
-    if website == '' or user_name == '' or password == '':
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
+
+    if website == '' or email == '' or password == '':
         messagebox.showerror(title="Error", message="Please don't leave any fields empty")
 
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \nEmail: {user_name} "
+        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \nEmail: {email} "
                                                               f"\nPassword: {password} \nIs it ok to save?")
         if is_ok:
-            with open("data.txt", "a") as file:
-                file.write(f"{website} | {user_name} | {password}\n")
+            try:
+                with open("data.json", "r") as data_file:
+                    # Reading old data
+                    data = json.load(data_file)
+
+            except FileNotFoundError:
+                with open("data.json", "w") as data_file:
+                    json.dump(new_data, data_file, indent=4)
+
+            else:
+                # Updating old data with new data
+                data.update(new_data)
+                with open("data.json", "w") as data_file:
+                    # Saving updating data
+                    json.dump(data, data_file, indent=4)
+
             website_entry.delete(0, END)
-            user_name_entry.delete(0, END)
-            user_name_entry.insert(0, "gmail@gmail.com")
+            email_entry.delete(0, END)
+            email_entry.insert(0, "gmail@gmail.com")
             password_entry.delete(0, END)
 
 
@@ -82,9 +104,9 @@ website_entry.grid(column=1, row=1, columnspan=2)
 website_entry.focus()
 
 # Email/User_name Entry
-user_name_entry = Entry(width=49, bg=TYPING)
-user_name_entry.grid(column=1, row=2, columnspan=2)
-user_name_entry.insert(0, "gmail@gmail.com")
+email_entry = Entry(width=49, bg=TYPING)
+email_entry.grid(column=1, row=2, columnspan=2)
+email_entry.insert(0, "gmail@gmail.com")
 
 # Password Entry
 password_entry = Entry(width=30, bg=TYPING)
