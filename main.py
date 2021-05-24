@@ -13,9 +13,9 @@ CLICK = "#a7bbc7"
 LABEL_FONT = ("Arial", 10)
 PADX = PADY = 3
 
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
-
     letters = list(string.ascii_letters)
     numbers = list(string.digits)
     symbols = list(string.punctuation)
@@ -56,7 +56,7 @@ def save():
                     # Reading old data
                     data = json.load(data_file)
 
-            except FileNotFoundError:
+            except:
                 with open("data.json", "w") as data_file:
                     json.dump(new_data, data_file, indent=4)
 
@@ -67,10 +67,33 @@ def save():
                     # Saving updating data
                     json.dump(data, data_file, indent=4)
 
-            website_entry.delete(0, END)
-            email_entry.delete(0, END)
-            email_entry.insert(0, "gmail@gmail.com")
-            password_entry.delete(0, END)
+            finally:
+                website_entry.delete(0, END)
+                email_entry.delete(0, END)
+                email_entry.insert(0, "gmail@gmail.com")
+                password_entry.delete(0, END)
+
+
+# ---------------------------- FIND PASSWORD ------------------------------- #
+
+
+def find_password():
+    website = website_entry.get()
+    try:
+        with open("data.json", "r") as data_file_search:
+            search_data = json.load(data_file_search)
+            print(search_data)
+    except FileNotFoundError:
+        messagebox.showerror(title="Error", message="No Data File Found")
+
+    else:
+        if website in search_data:
+            search_email = search_data[website_entry.get()]['email']
+            search_password = search_data[website_entry.get()]['password']
+            messagebox.showinfo(title=f"Password to {website}",
+                                message=f"Website: {website}\nEmail or Username: {search_email}\nPassword: {search_password}")
+        else:
+            messagebox.showerror(title="Error", message="No detail for the website exists")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -99,8 +122,8 @@ password_label.grid(column=0, row=3, sticky="E")
 password_label.config(padx=PADX, pady=PADY)
 
 # Website Entry
-website_entry = Entry(width=49, bg=TYPING)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = Entry(width=30, bg=TYPING)
+website_entry.grid(column=1, row=1)
 website_entry.focus()
 
 # Email/User_name Entry
@@ -113,7 +136,7 @@ password_entry = Entry(width=30, bg=TYPING)
 password_entry.grid(column=1, row=3)
 
 # Generate_password button
-generate_password_button = Button(text="Generate Password", command=generate_password)
+generate_password_button = Button(text="Generate Password", width=15, command=generate_password)
 generate_password_button.grid(column=2, row=3)
 generate_password_button.config(padx=PADX, pady=PADY)
 
@@ -121,5 +144,9 @@ generate_password_button.config(padx=PADX, pady=PADY)
 add_button = Button(text="Add", width=42, command=save)
 add_button.grid(column=1, row=4, columnspan=2)
 add_button.config(padx=0, pady=0)
+
+# Search button
+search_button = Button(text="Search", width=15, command=find_password)
+search_button.grid(column=2, row=1)
 
 widows.mainloop()
